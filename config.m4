@@ -64,8 +64,7 @@ if test "$PHP_HAYSTACK" != "no"; then
   LIBSYMBOL=rabbitmq
   PHP_ADD_LIBRARY_WITH_PATH($LIBNAME, $AMQP_DIR/$PHP_LIBDIR, AMQP_SHARED_LIBADD)
 
-  SOURCES="haystack.c"
-
+  SOURCES="haystack.c haystack_task_parameter.c haystack_task.c"
 
   dnl PHP_SUBST(AMQP_SHARED_LIBADD)
 

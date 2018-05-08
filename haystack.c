@@ -8,6 +8,9 @@
 #include "ext/standard/info.h"
 #include "php_haystack.h"
 
+#include "haystack_task_parameter.h"
+#include "haystack_task.h"
+
 /* If you declare any globals in php_haystack.h uncomment this:
 ZEND_DECLARE_MODULE_GLOBALS(haystack)
 */
@@ -26,21 +29,7 @@ PHP_INI_END()
 /* }}} */
 
 
-PHP_FUNCTION(confirm_haystack_compiled)
-{
-    php_printf("default size: %d\n", AMQP_DEFAULT_FRAME_SIZE);
-	char *arg = NULL;
-	size_t arg_len, len;
-	zend_string *strg;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &arg, &arg_len) == FAILURE) {
-		return;
-	}
-
-	strg = strpprintf(0, "Congratulations! You have successfully modified ext/%.78s/config.m4. Module %.78s is now compiled into PHP.", "haystack", arg);
-
-	RETURN_STR(strg);
-}
 /* }}} */
 
 /* {{{ php_haystack_init_globals
@@ -61,6 +50,8 @@ PHP_MINIT_FUNCTION(haystack)
 	/* If you have INI entries, uncomment these lines
 	REGISTER_INI_ENTRIES();
 	*/
+	ZEND_MODULE_STARTUP_N(haystack_task_parameter)(INIT_FUNC_ARGS_PASSTHRU);
+	ZEND_MODULE_STARTUP_N(haystack_task)(INIT_FUNC_ARGS_PASSTHRU);
 	return SUCCESS;
 }
 /* }}} */
@@ -116,7 +107,6 @@ PHP_MINFO_FUNCTION(haystack)
  * Every user visible function must have an entry in haystack_functions[].
  */
 const zend_function_entry haystack_functions[] = {
-	PHP_FE(confirm_haystack_compiled,	NULL)		/* For testing, remove later. */
 	PHP_FE_END	/* Must be the last line in haystack_functions[] */
 };
 /* }}} */

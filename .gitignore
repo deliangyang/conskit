@@ -87,3 +87,7 @@ tests/*/*.php
 tests/*/*.exp
 tests/*/*.log
 tests/*/*.sh
+
+.idea
+.vscode
+cmake*
