@@ -21,12 +21,14 @@ ZEND_BEGIN_ARG_INFO_EX(haystack_task_execute_arginfo, 0, 0, 1)
     ZEND_ARG_INFO(0, parameter)
 ZEND_END_ARG_INFO()
 
-
-
-PHP_METHOD(haystack_task, __clone) {}
 PHP_METHOD(haystack_task, __construct) {}
 PHP_METHOD(haystack_task, execute) {}
-PHP_METHOD(haystack_task, getName) {}
+PHP_METHOD(haystack_task, getName) {
+    zend_string *class_name;
+    zval *self = getThis();
+    class_name = Z_OBJ_P(self)->ce->name;
+    RETVAL_STR(class_name);
+}
 
 static zend_function_entry haystack_task_methods[] = {
     PHP_ABSTRACT_ME(haystack_task, execute, haystack_task_execute_arginfo)
