@@ -1,16 +1,6 @@
 <?php
 $br = (php_sapi_name() == "cli")? "":"<br>";
-class HelloWorld extends Haystack\Task {
-	public function execute($p) {}
-}
 
-var_dump((new HelloWorld())->getName());
-class Hello extends Haystack\Task {
-	public function execute($p) {}
-}
-var_dump((new Hello())->getName());
-
-exit;
 if(!extension_loaded('haystack')) {
 	dl('haystack.' . PHP_SHLIB_SUFFIX);
 }
