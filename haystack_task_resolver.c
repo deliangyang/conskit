@@ -8,6 +8,22 @@
 #include "haystack_task_resolver.h"
 
 
+void resolve_task_annotations(zend_string *task_class_name, zval *annoations) {
+  
+  array_init(annoations);
+  
+  pcre_cache_entry *name_regex, *queue_regex, *exchange_regex, *rkey_regex;
+  
+  name_regex = pcre_get_compiled_regex_cache(TASK_ANNOTATION_NAME_REGEX);
+  queue_regex = pcre_get_compiled_regex_cache(TASK_ANNOTATION_QUEUE_REGEX);
+  exchange_regex = pcre_get_compiled_regex_cache(TASK_ANNOTATION_EXCHANGE_REGEX);
+  rkey_regex = pcre_get_compiled_regex_cache(TASK_ANNOTATION_RKEY_REGEX);
+
+  zval match, groups;
+  // @todo go home
+}
+
+
 void execute(zval message) {
 
     zval *z = zend_hash_find(Z_ARRVAL(message), zend_string_init(TASK_MESSAGE_CLS));
