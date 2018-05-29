@@ -9,18 +9,64 @@
 
 
 void resolve_task_annotations(zend_string *task_class_name, zval *annoations) {
-  
-  array_init(annoations);
-  
-  pcre_cache_entry *name_regex, *queue_regex, *exchange_regex, *rkey_regex;
-  
-  name_regex = pcre_get_compiled_regex_cache(TASK_ANNOTATION_NAME_REGEX);
-  queue_regex = pcre_get_compiled_regex_cache(TASK_ANNOTATION_QUEUE_REGEX);
-  exchange_regex = pcre_get_compiled_regex_cache(TASK_ANNOTATION_EXCHANGE_REGEX);
-  rkey_regex = pcre_get_compiled_regex_cache(TASK_ANNOTATION_RKEY_REGEX);
 
-  zval match, groups;
-  // @todo go home
+    zend_class_entry *ce = zend_lookup_class(task_class_name);
+    if(ce == NULL) {
+        return ;
+    }
+
+    array_init(annoations);
+    pcre_cache_entry *name_regex, *queue_regex, *exchange_regex, *rkey_regex;
+  
+    name_regex = pcre_get_compiled_regex_cache(TASK_ANNOTATION_NAME_REGEX);
+    queue_regex = pcre_get_compiled_regex_cache(TASK_ANNOTATION_QUEUE_REGEX);
+    exchange_regex = pcre_get_compiled_regex_cache(TASK_ANNOTATION_EXCHANGE_REGEX);
+    rkey_regex = pcre_get_compiled_regex_cache(TASK_ANNOTATION_RKEY_REGEX);
+
+    zval exchanges, queues, bind_queues, ht;
+    array_init(&exchanges);
+	array_init(&queues);
+	array_init(&bind_queues);
+
+	if(ce->type == ZEND_USER_CLASS && ce->info.user.doc_comment) {
+	    zend_string *doc = ce->info.user.doc_comment;
+		char *str = ZSTR_VAL(doc);
+		size_t len = ZSTR_LEN(doc);
+		zend_string_release(doc);
+
+		zval matched, parts;
+		ZVAL_NULL(&parts);
+		ZVAL_NULL(&matched);
+		php_pcre_match_impl(queue_regex, str, len, &matched, &parts, 0, 0, 0, 0);
+		zval *q, *e;
+		if(1 == Z_LVAL(matched)) {
+			q = zend_hash_find(Z_ARRVAL_P(&parts), zend_string_init(ZEND_STRL("queue"), 0));
+			add_next_index_string(&queues, Z_STRVAL_P(q));
+			ZVAL_NULL(&parts);
+		}
+			
+		php_pcre_match_impl(exchange_regex, str, len, &matched, &parts, 0, 0, 0, 0);
+		if(1 == Z_LVAL(matched)) {
+			e = zend_hash_find(Z_ARRVAL_P(&parts), zend_string_init(ZEND_STRL("exchange"), 0));
+			add_next_index_string(&exchanges, Z_STRVAL_P(e));
+			ZVAL_NULL(&parts);
+		}
+			
+		php_pcre_match_impl(rkey_regex, str, len, &matched, &parts, 0, 0, 0, 0);
+   		if(1 == Z_LVAL(matched)) {
+			zval *r = zend_hash_find(Z_ARRVAL_P(&parts), zend_string_init(ZEND_STRL("routing_key"), 0));
+			zval bind_queue;
+			array_init(&bind_queue);
+			zend_hash_add(Z_ARRVAL(bind_queue), zend_string_init(ZEND_STRL("exchange"), 0), e);
+			zend_hash_add(Z_ARRVAL(bind_queue), zend_string_init(ZEND_STRL("queue"), 0), q);
+			zend_hash_add(Z_ARRVAL(bind_queue), zend_string_init(ZEND_STRL("routing_key"), 0), r);
+			add_next_index_zval(&bind_queues, &bind_queue);
+		}
+	}
+
+    zend_hash_add(Z_ARRVAL(annoations), zend_string_init(ZEND_STRL("queues"), 0), &queues);
+	zend_hash_add(Z_ARRVAL(annoations), zend_string_init(ZEND_STRL("exchanges"), 0), &exchanges);
+	zend_hash_add(Z_ARRVAL(annoations), zend_string_init(ZEND_STRL("bind"), 0), &bind_queues);
 }
 
 
