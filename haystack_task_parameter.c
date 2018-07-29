@@ -106,7 +106,7 @@ PHP_MINIT_FUNCTION(haystack_task_parameter) {
 
     zend_declare_property_null(
         haystack_task_parameter_ce, 
-        ZEND_STRL(HAYSTACK_TASK_PARAMETER_PROPERTY_VALUES), ZEND_ACC_PROTECTED
+        ZEND_STRL(HAYSTACK_TASK_PARAMETER_PROPERTY_VALUES), ZEND_ACC_PUBLIC
     );
     return SUCCESS;
 }
