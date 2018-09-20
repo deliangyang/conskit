@@ -1,5 +1,7 @@
-#include "amqp_rb.h"
-#include <stdio.h>
+#include <stdlib.h>
+
+#include "conskit_amqp_broker.h"
+
 
 char *bytes_as_string(amqp_bytes_t bytes) {
 
@@ -24,8 +26,8 @@ char *bytes_as_string(amqp_bytes_t bytes) {
 }
 
 amqp_connection_state_t make_rb_connection(
-    char *host,
-    int port
+        char *host,
+        int port
 ) {
 
     amqp_connection_state_t connect;
@@ -33,29 +35,29 @@ amqp_connection_state_t make_rb_connection(
 
     connect = amqp_new_connection();
     sock = amqp_tcp_socket_new(connect);
-    int ret = amqp_socket_open(sock, host, port);
-    
+    amqp_socket_open(sock, host, port);
+
     return connect;
 }
 
 
 amqp_rpc_reply_t rb_auth(
-    amqp_connection_state_t connection, 
-    char *username,
-    char *password,
-    char *vhost
+        amqp_connection_state_t connection,
+        char *username,
+        char *password,
+        char *vhost
 ) {
 
     amqp_rpc_reply_t reply;
     reply = amqp_login(
-        connection,
-        vhost,
-        0,
-        AMQP_DEFAULT_FRAME_SIZE,
-        0,
-        AMQP_SASL_METHOD_PLAIN,
-        username,
-        password
+            connection,
+            vhost,
+            0,
+            AMQP_DEFAULT_FRAME_SIZE,
+            0,
+            AMQP_SASL_METHOD_PLAIN,
+            username,
+            password
     );
 
     return reply;
@@ -63,32 +65,32 @@ amqp_rpc_reply_t rb_auth(
 
 
 amqp_channel_open_ok_t *open_rb_channel(
-    amqp_connection_state_t connection, 
-    int channel
+        amqp_connection_state_t connection,
+        int channel
 ) {
     return amqp_channel_open(connection, channel);
 }
 
 
 void rb_basic_consume(
-    amqp_connection_state_t connection,
-    int channel, 
-    char *q, 
-    char *tag
+        amqp_connection_state_t connection,
+        int channel,
+        char *q,
+        char *tag
 ) {
     amqp_table_t table = {0, NULL};
     amqp_basic_consume(
-        connection, channel, amqp_cstring_bytes(q), amqp_cstring_bytes(tag),
-        0, 1, 0, table
+            connection, channel, amqp_cstring_bytes(q), amqp_cstring_bytes(tag),
+            0, 1, 0, table
     );
 
 }
 
 
 int rb_consume(
-    amqp_connection_state_t connection,
-    int (*handle)(amqp_envelope_t *envelople), 
-    int consumed
+        amqp_connection_state_t connection,
+        int (*handle)(amqp_envelope_t *envelople),
+        int consumed
 ) {
 
     amqp_envelope_t envelope;
@@ -103,8 +105,9 @@ int rb_consume(
         } else {
             return -1;
         }
-        if (n > consumed) {
-            break;
+        if (n >= consumed) {
+            amqp_destroy_connection(connection);
+            exit(0);
         }
     }
 

@@ -1,2 +1,0 @@
-# haystack
-PHP Task Queue

@@ -1,10 +1,10 @@
 --TEST--
-Check for haystack presence
+Check for conskit presence
 --SKIPIF--
-<?php if (!extension_loaded("haystack")) print "skip"; ?>
+<?php if (!extension_loaded("conskit")) print "skip"; ?>
 --FILE--
 <?php 
-echo "haystack extension is available";
+echo "conskit extension is available";
 /*
 	you can add regression tests for your extension here
 
@@ -18,4 +18,4 @@ echo "haystack extension is available";
 */
 ?>
 --EXPECT--
-haystack extension is available
+conskit extension is available
